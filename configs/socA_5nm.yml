@@ -1,0 +1,41 @@
+design: socA
+node: 5nm
+paths:
+  workdir: out
+  reportdir: reports
+mmmc:
+  modes: [func, scan]
+  corners: [ss_0p72_125c, tt_0p80_25c, ff_0p88_m40c]
+floorplan:
+  utilization: 0.68
+  macros:
+    - {name: SRAM0, x: 120, y: 300, orient: R0, keepout: 8}
+    - {name: SRAM1, x: 680, y: 300, orient: R0, keepout: 8}
+  ioring_um: 12
+  channels_um: 6
+pdn:
+  style: mesh
+  straps:
+    - {layer: M8, pitch: 30, width: 2.0}
+    - {layer: M9, pitch: 40, width: 3.0}
+  via_stack: V89x3
+  decap_ratio: 0.03
+  ir_drop_pct_target: 5
+place:
+  max_util: 0.72
+cts:
+  buffers: [CLKBUF_X2, CLKBUF_X4, CLKBUF_X8, CLKINV_X2]
+  skew_ps: 50
+  insertion_ps: 900
+  useful_skew: false
+route:
+  prefer_layers: [M3, M4, M5, M6, M7, M8, M9]
+  shield_critical: true
+gates:
+  wns_ps_min: 0
+  tns_ns_max: 10
+  ir_drop_pct_max: 5
+  drc_max: 0
+  lvs_must_be: clean
+  grc_overflow_pct_max: 1.0
+  clock_power_mw_max: 120
