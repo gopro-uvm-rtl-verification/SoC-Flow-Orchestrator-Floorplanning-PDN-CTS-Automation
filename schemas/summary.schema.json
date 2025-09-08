@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Result Contract v1",
+  "type": "object",
+  "properties": {
+    "timing": {
+      "type": "object",
+      "properties": {
+        "WNS_ps": {
+          "type": "number"
+        },
+        "TNS_ns": {
+          "type": "number"
+        },
+        "viol_paths": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "WNS_ps",
+        "TNS_ns",
+        "viol_paths"
+      ]
+    },
+    "power": {
+      "type": "object",
+      "properties": {
+        "total_mw": {
+          "type": "number"
+        },
+        "clock_mw": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "total_mw",
+        "clock_mw"
+      ]
+    },
+    "ir": {
+      "type": "object",
+      "properties": {
+        "drop_pct_max": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "drop_pct_max"
+      ]
+    },
+    "drc": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "count"
+      ]
+    },
+    "lvs": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ]
+    },
+    "congestion": {
+      "type": "object",
+      "properties": {
+        "grc_overflow_pct": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "grc_overflow_pct"
+      ]
+    }
+  },
+  "required": [
+    "timing",
+    "power",
+    "ir",
+    "drc",
+    "lvs",
+    "congestion"
+  ]
+}
