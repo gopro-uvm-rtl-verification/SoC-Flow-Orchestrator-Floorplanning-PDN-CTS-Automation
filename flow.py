@@ -1,24 +1,24 @@
 
-import argparse, json, os, csv
+import argparse, json, os, csv #这个地方是import，功能是导入所需的模块
 from pathlib import Path
 import yaml
 from baseline import diff_summaries
 from gates import check_gates
 
-def load_cfg(p):
+def load_cfg(p):#加载配置文件，返回配置字典，使用yaml.safe_load
     with open(p, "r") as f:
         return yaml.safe_load(f)
 
-def ensure_dirs(cfg):
+def ensure_dirs(cfg):#确保工作目录和报告目录存在
     Path(cfg["paths"]["workdir"]).mkdir(parents=True, exist_ok=True)
     Path(cfg["paths"]["reportdir"]).mkdir(parents=True, exist_ok=True)
 
-def write_file(p, text):
+def write_file(p, text):#·写文件，确保目录存在
     Path(p).parent.mkdir(parents=True, exist_ok=True)
     with open(p, "w") as f:
         f.write(text)
 
-def mock_stage(name, cfg):
+def mock_stage(name, cfg):#模拟各个设计阶段，生成假文件和报告
     out = Path(cfg["paths"]["workdir"])
     rep = Path(cfg["paths"]["reportdir"])
     if name == "floorplan":
@@ -40,7 +40,7 @@ def mock_stage(name, cfg):
         write_file(rep / "calibre_drc.rpt", "DRC_count = 0\n")
         write_file(rep / "calibre_lvs.rpt", "LVS = clean\n")
 
-def parse_and_summarize(cfg):
+def parse_and_summarize(cfg):#解析各个报告文件，汇总结果，生成summary.json和summary.csv
     rep = Path(cfg["paths"]["reportdir"])
 
     def read_kv(p):
@@ -91,7 +91,7 @@ def parse_and_summarize(cfg):
         ]: w.writerow([k,v])
     return summary
 
-def main():
+def main():#主函数，解析命令行参数，执行各个设计阶段，汇总结果，检查门限，生成报告，处理基线，退出
     ap = argparse.ArgumentParser()
     ap.add_argument("--cfg", required=True)
     ap.add_argument("--mode", choices=["mock","real"], default="mock")
