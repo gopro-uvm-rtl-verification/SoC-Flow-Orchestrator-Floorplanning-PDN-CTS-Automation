@@ -12,15 +12,6 @@ Two modes:
 
 ```
 python3 flow.py --cfg configs/socA_5nm.yml --mode mock
-```
-
-Artifacts:
-- `out/*`  — stage artifacts
-- `reports/*` — raw reports
-- `reports/summary.json|csv` — normalized result
-- `reports/gates.txt` — PASS/FAIL
-- `baseline/` — baseline for delta
-
 .
 ├── README.md
 ├── LICENSE
@@ -60,3 +51,13 @@ Artifacts:
 ├── out/ # (generated)
 ├── reports/ # (generated)
 └── baseline/ # (generated)
+```
+
+Artifacts:
+- `out/*`  — stage artifacts
+- `reports/*` — raw reports
+- `reports/summary.json|csv` — normalized result
+- `reports/gates.txt` — PASS/FAIL
+- `baseline/` — baseline for delta
+
+
