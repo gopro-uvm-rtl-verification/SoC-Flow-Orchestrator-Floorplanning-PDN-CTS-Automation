@@ -1,6 +1,6 @@
 
-def diff_summaries(before, after):
-    def gv(d, path, default=None):
+def diff_summaries(before, after): #比较前后summary，计算关键指标的变化，返回变化字典
+    def gv(d, path, default=None): #根据路径获取嵌套字典的值
         for k in path.split("."):
             d = d.get(k, {})
         return d if d != {} else default
