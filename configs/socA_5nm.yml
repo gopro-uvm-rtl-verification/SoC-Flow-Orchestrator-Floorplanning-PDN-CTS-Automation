@@ -1,19 +1,19 @@
-design: socA//这里是设计名称，socA表示SOC A
-node: 5nm//这里是工艺节点，5nm表示5纳米工艺
-paths: //这里是路径配置
+design: socA #这里是设计名称，socA表示SOC A
+node: 5nm #这里是工艺节点，5nm表示5纳米工艺
+paths: #这里是路径配置
   workdir: out
   reportdir: reports
-mmmc://这里是MMMC配置
+mmmc: #这里是MMMC配置
   modes: [func, scan]
   corners: [ss_0p72_125c, tt_0p80_25c, ff_0p88_m40c]
-floorplan://这里是布局规划配置
+floorplan: #这里是布局规划配置
   utilization: 0.68
   macros:
     - {name: SRAM0, x: 120, y: 300, orient: R0, keepout: 8}
     - {name: SRAM1, x: 680, y: 300, orient: R0, keepout: 8}
   ioring_um: 12
   channels_um: 6
-pdn://这里是电源分配网络配置
+pdn: #这里是电源分配网络配置
   style: mesh
   straps:
     - {layer: M8, pitch: 30, width: 2.0}
@@ -21,16 +21,16 @@ pdn://这里是电源分配网络配置
   via_stack: V89x3
   decap_ratio: 0.03
   ir_drop_pct_target: 5
-place://这里是布局配置
+place: #这里是布局配置
   max_util: 0.72design: socA
 node: 5nm
-paths:
+paths: #这里是路径配置
   workdir: out
   reportdir: reports
-mmmc:
+mmmc: #这里是MMMC配置
   modes: [func, scan]
   corners: [ss_0p72_125c, tt_0p80_25c, ff_0p88_m40c]
-floorplan:
+floorplan: #这里是布局规划配置
   utilization: 0.68
   macros:
     - {name: SRAM0, x: 120, y: 300, orient: R0, keepout: 8}
@@ -45,17 +45,17 @@ pdn: #这里是电源分配网络配置
   via_stack: V89x3 # 这句话是过孔堆叠，表示从第八层到第九层的三倍过孔
   decap_ratio: 0.03 # 这句话是去耦电容比例，表示芯片面积的3%
   ir_drop_pct_target: 5 # 这句话是IR压降目标，表示最大允许的电压降为5%
-place:
+place: #这里是布局配置
   max_util: 0.72
-cts:
-  buffers: [CLKBUF_X2, CLKBUF_X4, CLKBUF_X8, CLKINV_X2]
-  skew_ps: 50
-  insertion_ps: 900
-  useful_skew: false
-route:
+cts: #这里是时钟树综合配置
+  buffers: [CLKBUF_X2, CLKBUF_X4, CLKBUF_X8, CLKINV_X2] # 这句话是时钟缓冲器和反相器的列表
+  skew_ps: 50 # 这句话是时钟偏斜目标，表示最大允许的时钟偏斜为50皮秒
+  insertion_ps: 900 # 这句话是时钟插入延迟目标，表示最大允许的时钟插入延迟为900皮秒
+  useful_skew: false # 这句话表示是否允许有用的时钟偏斜，false表示不允许
+route: #这里是布线配置
   prefer_layers: [M3, M4, M5, M6, M7, M8, M9]
   shield_critical: true
-gates:
+gates: #这里是门级检查配置
   wns_ps_min: 0
   tns_ns_max: 10
   ir_drop_pct_max: 5
@@ -64,15 +64,15 @@ gates:
   grc_overflow_pct_max: 1.0
   clock_power_mw_max: 120
 
-cts://这里是时钟树综合配置
+cts: #这里是时钟树综合配置
   buffers: [CLKBUF_X2, CLKBUF_X4, CLKBUF_X8, CLKINV_X2]
   skew_ps: 50
   insertion_ps: 900
   useful_skew: false
-route://这里是布线配置
+route: #这里是布线配置
   prefer_layers: [M3, M4, M5, M6, M7, M8, M9]
   shield_critical: true
-gates://这里是门级检查配置
+gates: #这里是门级检查配置
   wns_ps_min: 0
   tns_ns_max: 10
   ir_drop_pct_max: 5
