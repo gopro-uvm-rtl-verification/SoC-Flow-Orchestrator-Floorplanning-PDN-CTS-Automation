@@ -73,10 +73,10 @@ route: #这里是布线配置
   prefer_layers: [M3, M4, M5, M6, M7, M8, M9]
   shield_critical: true
 gates: #这里是门级检查配置
-  wns_ps_min: 0
-  tns_ns_max: 10
-  ir_drop_pct_max: 5
-  drc_max: 0
-  lvs_must_be: clean
-  grc_overflow_pct_max: 1.0
-  clock_power_mw_max: 120
+  wns_ps_min: 0 # WNS (Worst Negative Slack)：最差时序余量（ps）。目标 ≥ 0
+  tns_ns_max: 10 # TNS (Total Negative Slack)：所有负余量之和（ns），反映“问题面有多广”。目标 0
+  ir_drop_pct_max: 5 # IR / EM：电源压降 / 电迁移。IR 目标 ≤ ~5%VDD；EM 不超 deck 限值。
+  drc_max: 0 # DRC = 0：版规违例必须为零
+  lvs_must_be: clean # LVS clean：版图与网表一致
+  grc_overflow_pct_max: 1.0 # Congestion (GRC overflow %)：全局布线拥塞百分比。目标 ≤ ~1%。
+  clock_power_mw_max: 120 # Clock power (mW)：时钟网络功耗
