@@ -1,93 +1,141 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Result Contract v1",
-  "type": "object",
-  "properties": {
-    "timing": {
-      "type": "object",
-      "properties": {
-        "WNS_ps": {
-          "type": "number"
-        },
-        "TNS_ns": {
-          "type": "number"
-        },
-        "viol_paths": {
-          "type": "integer"
+  "$schema": "http:#json-schema.org/draft-07/schema#", # 使用 Draft-07 规范，方便大多数校验器
+  "title": "PD Flow Unified Summary",                    # 这个 schema 的标题
+  "description": "Normalized metrics from P&R/STA/IR/DRC/LVS into one contract (units fixed).", # 简述：把多工具指标统一到一张表
+  "type": "object",                                      # 顶层是对象
+  "additionalProperties": false,                         # 禁止未声明字段，保证口径稳定
+  "properties": {                                        # 顶层字段集合，包括七大块：meta、ir、drc、lvs、congestion、timing、power
+    "meta": {                                            # 元信息：设计、节点、工具版本、时间等
+      "type": "object", # 元信息是对象
+      "additionalProperties": false, # 禁止未声明字段
+      "properties": { # 元信息字段，包括设计名、工艺节点、构建ID、时间戳和工具链
+        "design": { "type": "string", "description": "Top module / block name." }, # 设计名
+        "node":   { "type": "string", "description": "Technology label, e.g., 5nm/7nm/sky130." }, # 工艺节点标签
+        "run_id": { "type": "string", "description": "Unique build id/commit/CI run number." },   # 本次构建的唯一ID
+        "timestamp_utc": { "type": "string", "format": "date-time", "description": "ISO8601 UTC time." }, # 运行时间
+        "toolchain": {                                   # 各类工具与版本口径
+          "type": "object", # 工具链是对象
+          "additionalProperties": false,
+          "properties": { # 工具链字段，包括 P&R、STA、IR/EM、DRC/LVS 四类
+            "pnr":     { "type": "string", "description": "P&R tool and version (OpenROAD/Innovus/ICC2)." }, # 放置布线工具
+            "sta":     { "type": "string", "description": "STA tool and version (OpenSTA/PrimeTime/Tempus)." }, # 时序工具
+            "ir_em":   { "type": "string", "description": "IR/EM tool and version (PDNSim/Voltus/RedHawk)." }, # IR/EM 工具
+            "drc_lvs": { "type": "string", "description": "DRC/LVS tool and version (Calibre/Pegasus/...)." }  # DRC/LVS 工具
+          },
+          "required": ["pnr","sta"]                      # 至少 P&R 与 STA 两类必须存在
         }
       },
-      "required": [
-        "WNS_ps",
-        "TNS_ns",
-        "viol_paths"
-      ]
+      "required": ["design","node","run_id","timestamp_utc","toolchain"] # 元信息必填项
     },
-    "power": {
+
+    "timing": {                                          # 时序汇总（单位固定：WNS=ps，TNS=ns）
       "type": "object",
-      "properties": {
-        "total_mw": {
-          "type": "number"
-        },
-        "clock_mw": {
-          "type": "number"
+      "additionalProperties": false,
+      "properties": {                                     # 时序字段，包括 WNS、TNS、worst_view、views
+        "WNS_ps": { "type": "number", "description": "Worst Negative Slack in picoseconds (across MMMC)." }, # 最差余量（ps）
+        "TNS_ns": { "type": "number", "description": "Total Negative Slack in nanoseconds (across MMMC)." }, # 负余量总和（ns）
+        "worst_view": { "type": "string", "description": "MMMC view that produced WNS." },                   # 触发最差WNS的视图名
+        "views": {                                        # 按视图的明细，可选
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": { # 视图项字段，包括视图名、该视图WNS、该视图TNS
+              "view":   { "type": "string", "description": "View name like func_ss_0p72_125c." }, # 视图名
+              "WNS_ps": { "type": "number" },                                                    # 该视图WNS
+              "TNS_ns": { "type": "number" }                                                     # 该视图TNS
+            },
+            "required": ["view","WNS_ps","TNS_ns"]                                               # 视图项必填
+          }
         }
       },
-      "required": [
-        "total_mw",
-        "clock_mw"
-      ]
+      "required": ["WNS_ps","TNS_ns"]                      # 汇总项必填
     },
-    "ir": {
+
+    "ir": {                                               # 电源完整性（单位固定：%VDD）
       "type": "object",
-      "properties": {
-        "drop_pct_max": {
-          "type": "number"
-        }
+      "additionalProperties": false,
+      "properties": { # 电源完整性字段，包括最大压降和最差位置
+        "max_drop_pct":   { "type": "number", "description": "Worst IR drop as percentage of VDD." }, # 最大压降（%VDD）
+        "worst_location": { "type": "string", "description": "Optional locator for worst IR (x/y/layer or instance)." } # 最差位置说明
       },
-      "required": [
-        "drop_pct_max"
-      ]
+      "required": ["max_drop_pct"]                         # 至少给出最大压降
     },
-    "drc": {
+
+    "congestion": {                                       # 拥塞（单位固定：%）
       "type": "object",
-      "properties": {
-        "count": {
-          "type": "integer"
-        }
+      "additionalProperties": false,
+      "properties": { # 拥塞字段，包括 GRC 溢出百分比和最差 bin 定位
+        "grc_overflow_pct": { "type": "number", "description": "Global routing cell overflow percentage." }, # GRC 溢出百分比
+        "worst_bin":        { "type": "string",  "description": "Optional worst bin id/region." }            # 最差bin定位（可选）
       },
-      "required": [
-        "count"
-      ]
+      "required": ["grc_overflow_pct"]                    # 必填溢出百分比
     },
-    "lvs": {
+
+    "drc": {                                              # 版规检查
       "type": "object",
-      "properties": {
-        "status": {
-          "type": "string"
-        }
+      "additionalProperties": false,
+      "properties": { # DRC 字段，包括总违例数
+        "count": { "type": "integer", "minimum": 0, "description": "Total DRC violations; 0 is signoff target." } # DRC 违例总数
       },
-      "required": [
-        "status"
-      ]
+      "required": ["count"]                                # 必填DRC数
     },
-    "congestion": {
+
+    "lvs": {                                              # 版图-原理图一致性
       "type": "object",
-      "properties": {
-        "grc_overflow_pct": {
-          "type": "number"
-        }
+      "additionalProperties": false,
+      "properties": { # LVS 字段，包括状态、开路数、短路数
+        "status": { "type": "string", "enum": ["clean","fail"], "description": "LVS signoff status." }, # LVS 状态枚举
+        "opens":  { "type": "integer", "minimum": 0, "description": "Optional: number of opens." },     # 可选：开路数
+        "shorts": { "type": "integer", "minimum": 0, "description": "Optional: number of shorts." }     # 可选：短路数
       },
-      "required": [
-        "grc_overflow_pct"
-      ]
+      "required": ["status"]                               # 至少提供状态
+    },
+
+    "clock": {                                            # 时钟相关指标，如时钟功耗、skew、插入延迟、根数等
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { # 时钟字段，包括功耗、skew、插入延迟、根数
+        "power_mw":     { "type": "number", "description": "Clock network power in milliwatts." },       # 时钟功耗（mW）
+        "skew_ps":      { "type": "number", "description": "Achieved clock skew in picoseconds." },      # 实际 skew（ps）
+        "insertion_ps": { "type": "number", "description": "Achieved insertion delay in picoseconds." }, # 实际插入延迟（ps）
+        "roots":        { "type": "integer", "minimum": 1, "description": "Number of clock roots." }     # 时钟根数（可帮助诊断）
+      },
+      "required": ["skew_ps","insertion_ps"]               # 至少提供时钟质量指标
     }
   },
-  "required": [
-    "timing",
-    "power",
-    "ir",
-    "drc",
-    "lvs",
-    "congestion"
+
+  "required": ["meta","timing","ir","drc","lvs","congestion","clock"], # 顶层必备的七大块
+  "examples": [                                           # 一个示例，帮助自检
+    {
+      "meta": {
+        "design": "top",
+        "node": "5nm",
+        "run_id": "build_12345",
+        "timestamp_utc": "2025-09-09T08:00:00Z",
+        "toolchain": {
+          "pnr": "OpenROAD 2.0",
+          "sta": "OpenSTA 2.4",
+          "ir_em": "PDNSim 1.0",
+          "drc_lvs": "Calibre 2024.2"
+        }
+      },
+      "timing": {
+        "WNS_ps": 12.4,
+        "TNS_ns": 0.0,
+        "worst_view": "func_ss_0p72_125c",
+        "views": [
+          { "view": "func_ss_0p72_125c", "WNS_ps": 12.4, "TNS_ns": 0.0 }
+        ]
+      },
+      "ir": { "max_drop_pct": 4.7, "worst_location": "x=1200,y=3400,layer=M8" },
+      "congestion": { "grc_overflow_pct": 0.6, "worst_bin": "GRC(14,22)" },
+      "drc": { "count": 0 },
+      "lvs": { "status": "clean" },
+      "clock": { "power_mw": 118.3, "skew_ps": 42.0, "insertion_ps": 880.0, "roots": 3 }
+    }
   ]
 }
+
+
+#这个文件的功能是一个设计流程的示例脚本，模拟各个设计阶段，生成假文件和报告，汇总结果，检查门限，生成报告，处理基线，并最终退出。
