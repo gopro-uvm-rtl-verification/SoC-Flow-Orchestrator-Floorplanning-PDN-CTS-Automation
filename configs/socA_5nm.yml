@@ -1,4 +1,28 @@
-design: socA
+design: socA//这里是设计名称，socA表示SOC A
+node: 5nm//这里是工艺节点，5nm表示5纳米工艺
+paths: //这里是路径配置
+  workdir: out
+  reportdir: reports
+mmmc://这里是MMMC配置
+  modes: [func, scan]
+  corners: [ss_0p72_125c, tt_0p80_25c, ff_0p88_m40c]
+floorplan://这里是布局规划配置
+  utilization: 0.68
+  macros:
+    - {name: SRAM0, x: 120, y: 300, orient: R0, keepout: 8}
+    - {name: SRAM1, x: 680, y: 300, orient: R0, keepout: 8}
+  ioring_um: 12
+  channels_um: 6
+pdn://这里是电源分配网络配置
+  style: mesh
+  straps:
+    - {layer: M8, pitch: 30, width: 2.0}
+    - {layer: M9, pitch: 40, width: 3.0}
+  via_stack: V89x3
+  decap_ratio: 0.03
+  ir_drop_pct_target: 5
+place://这里是布局配置
+  max_util: 0.72design: socA
 node: 5nm
 paths:
   workdir: out
@@ -13,14 +37,14 @@ floorplan:
     - {name: SRAM1, x: 680, y: 300, orient: R0, keepout: 8}
   ioring_um: 12
   channels_um: 6
-pdn:
-  style: mesh
-  straps:
-    - {layer: M8, pitch: 30, width: 2.0}
-    - {layer: M9, pitch: 40, width: 3.0}
-  via_stack: V89x3
-  decap_ratio: 0.03
-  ir_drop_pct_target: 5
+pdn: #这里是电源分配网络配置
+  style: mesh #这句话是电源分配网络风格，mesh表示网格状
+  straps: # 这部分是电源带配置
+    - {layer: M8, pitch: 30, width: 2.0} # 这句话是第八层金属的电源带，间距30微米，宽度2微米
+    - {layer: M9, pitch: 40, width: 3.0} # 这句话是第九层金属的电源带，间距40微米，宽度3微米
+  via_stack: V89x3 # 这句话是过孔堆叠，表示从第八层到第九层的三倍过孔
+  decap_ratio: 0.03 # 这句话是去耦电容比例，表示芯片面积的3%
+  ir_drop_pct_target: 5 # 这句话是IR压降目标，表示最大允许的电压降为5%
 place:
   max_util: 0.72
 cts:
@@ -32,6 +56,23 @@ route:
   prefer_layers: [M3, M4, M5, M6, M7, M8, M9]
   shield_critical: true
 gates:
+  wns_ps_min: 0
+  tns_ns_max: 10
+  ir_drop_pct_max: 5
+  drc_max: 0
+  lvs_must_be: clean
+  grc_overflow_pct_max: 1.0
+  clock_power_mw_max: 120
+
+cts://这里是时钟树综合配置
+  buffers: [CLKBUF_X2, CLKBUF_X4, CLKBUF_X8, CLKINV_X2]
+  skew_ps: 50
+  insertion_ps: 900
+  useful_skew: false
+route://这里是布线配置
+  prefer_layers: [M3, M4, M5, M6, M7, M8, M9]
+  shield_critical: true
+gates://这里是门级检查配置
   wns_ps_min: 0
   tns_ns_max: 10
   ir_drop_pct_max: 5
